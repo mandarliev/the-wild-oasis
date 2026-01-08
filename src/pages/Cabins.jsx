@@ -1,7 +1,12 @@
 import Heading from "./Heading";
 import Row from "../ui/Row";
+import { getCabins } from "../services/apiCabins";
+import { useEffect } from "react";
 
 function Cabins() {
+  useEffect(() => {
+    getCabins().then((data) => console.log(data));
+  }, []);
   return (
     <Row type="horizontal">
       <Heading as="h1">All cabins</Heading>
