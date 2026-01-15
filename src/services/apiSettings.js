@@ -12,11 +12,21 @@ export async function getSettings() {
 
 // We expect a newSetting object that looks like {setting: newValue}
 export async function updateSetting(newSetting) {
+  // Fetch the ID of the settings row
+  const { data: settings, error: fetchError } = await supabase
+    .from("settings")
+    .select("id")
+    .single();
+
+  if (fetchError || !settings) {
+    console.error(fetchError || "No settings row found");
+    throw new Error("Settings could not be updated: No settings row found");
+  }
+
   const { data, error } = await supabase
     .from("settings")
     .update(newSetting)
-    // There is only ONE row of settings, and it has the ID=1, and so this is the updated one
-    .eq("id", 1)
+    .eq("id", settings.id)
     .single();
 
   if (error) {
