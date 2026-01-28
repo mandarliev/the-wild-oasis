@@ -37,7 +37,7 @@ const Amount = styled.div`
 
 function BookingRow({
   booking: {
-    id: bookingId,
+    id: bookingID,
     created_at,
     startDate,
     endDate,
@@ -45,10 +45,13 @@ function BookingRow({
     numGuests,
     totalPrice,
     status,
-    guests: { fullName: guestName, email },
-    cabins: { name: cabinName },
+    guests,
+    cabins,
   },
 }) {
+  const guestName = guests.fullName;
+  const email = guests.email;
+
   const statusToTagName = {
     unconfirmed: "blue",
     "checked-in": "green",
@@ -57,13 +60,11 @@ function BookingRow({
 
   return (
     <Table.Row>
-      <Cabin>{cabinName}</Cabin>
-
+      <Cabin>{cabins.name}</Cabin>
       <Stacked>
         <span>{guestName}</span>
         <span>{email}</span>
       </Stacked>
-
       <Stacked>
         <span>
           {isToday(new Date(startDate))
@@ -76,9 +77,7 @@ function BookingRow({
           {format(new Date(endDate), "MMM dd yyyy")}
         </span>
       </Stacked>
-
       <Tag type={statusToTagName[status]}>{status.replace("-", " ")}</Tag>
-
       <Amount>{formatCurrency(totalPrice)}</Amount>
     </Table.Row>
   );
