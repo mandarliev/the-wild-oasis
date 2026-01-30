@@ -1,7 +1,8 @@
+import { PAGE_SIZE } from "../utils/constants";
 import { getToday } from "../utils/helpers";
 import supabase from "./supabase";
 
-export async function getBookings({ filter, sortBy }) {
+export async function getBookings({ filter, sortBy, page }) {
   let baseFields = [
     "id",
     "created_at",
@@ -37,7 +38,9 @@ export async function getBookings({ filter, sortBy }) {
     sortBy.direction = sortBy.direction || "asc";
   }
 
-  let query = supabase.from("bookings").select(baseFields.join(", "));
+  let query = supabase
+    .from("bookings")
+    .select(baseFields.join(", "), { count: "exact" });
 
   // Filter
   if (filter) {
@@ -51,9 +54,15 @@ export async function getBookings({ filter, sortBy }) {
     query = query.order(sortBy.field, {
       ascending: sortBy.direction === "asc",
     });
+
+    if (page) {
+      const from = (page - 1) * (PAGE_SIZE - 1);
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
+    }
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
 
   if (error) {
     console.error("Error fetching bookings:", error);
@@ -61,7 +70,7 @@ export async function getBookings({ filter, sortBy }) {
   }
 
   console.log("Fetched bookings:", data);
-  return data;
+  return { data, count };
 }
 
 export async function getBooking(id) {
