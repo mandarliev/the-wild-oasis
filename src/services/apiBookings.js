@@ -44,13 +44,11 @@ export async function getBookings({ filter, sortBy, page }) {
 
   // Filter
   if (filter) {
-    console.log("Applying filter:", filter);
     query = query[filter.method || "eq"](filter.field, filter.value);
   }
 
   // Sort
   if (sortBy) {
-    console.log("Applying sort:", sortBy);
     query = query.order(sortBy.field, {
       ascending: sortBy.direction === "asc",
     });
@@ -69,7 +67,6 @@ export async function getBookings({ filter, sortBy, page }) {
     throw new Error("Bookings could not be loaded");
   }
 
-  console.log("Fetched bookings:", data);
   return { data, count };
 }
 
