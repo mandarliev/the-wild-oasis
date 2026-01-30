@@ -2,24 +2,65 @@ import { getToday } from "../utils/helpers";
 import supabase from "./supabase";
 
 export async function getBookings({ filter, sortBy }) {
-  let query = supabase
-    .from("bookings")
-    .select(
-      "id, created_at, startDate, endDate, numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)",
-    );
+  let baseFields = [
+    "id",
+    "created_at",
+    "startDate",
+    "endDate",
+    "numNights",
+    "numGuests",
+    "status",
+    "totalPrice",
+    "cabins(name)",
+    "guests(fullName, email)",
+  ];
+
+  // Map user-friendly sort labels to database fields
+  const sortFieldMapping = {
+    "Sort by amount (high first)": "totalPrice",
+    "Sort by amount (low first)": "totalPrice",
+    "Sort by date": "created_at",
+    "Sort by date (earlier first)": "created_at",
+    "Sort by date (recent first)": "created_at",
+    // Add more mappings as needed
+  };
+
+  // Ensure sortBy.field is valid
+  if (sortBy) {
+    sortBy.field = sortFieldMapping[sortBy.field] || sortBy.field;
+    if (!baseFields.includes(sortBy.field)) {
+      console.warn(`Invalid sort field: ${sortBy.field}`);
+      throw new Error(`Invalid sort field: ${sortBy.field}`);
+    }
+
+    // Set default direction if undefined
+    sortBy.direction = sortBy.direction || "asc";
+  }
+
+  let query = supabase.from("bookings").select(baseFields.join(", "));
 
   // Filter
-  if (filter !== null) {
+  if (filter) {
+    console.log("Applying filter:", filter);
     query = query[filter.method || "eq"](filter.field, filter.value);
+  }
+
+  // Sort
+  if (sortBy) {
+    console.log("Applying sort:", sortBy);
+    query = query.order(sortBy.field, {
+      ascending: sortBy.direction === "asc",
+    });
   }
 
   const { data, error } = await query;
 
   if (error) {
-    console.log(error);
+    console.error("Error fetching bookings:", error);
     throw new Error("Bookings could not be loaded");
   }
 
+  console.log("Fetched bookings:", data);
   return data;
 }
 
