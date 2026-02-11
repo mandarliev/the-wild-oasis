@@ -1,7 +1,5 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import Input from "./Input";
-import { useForm } from "react-hook-form";
 
 const StyledFormRow = styled.div`
   display: grid;
