@@ -14,7 +14,7 @@ export function useRecentStays() {
 
   const { isLoading, data: stays } = useQuery({
     queryFn: () => getStaysAfterDate(queryDate),
-    queryKey: ["statys", `last-${numDays}`],
+    queryKey: ["stays", `last-${numDays}`],
   });
 
   const confirmedStays = stays?.filter(
